@@ -182,6 +182,101 @@ Your product listing page is where you would show all your products for your cus
 
 <br/>
 
+## Add lifecycle.js file in `./src/api/[name]/content-types/[name]`
+
+```
+module.exports = {
+  async afterCreate(event) {
+    const { result, params } = event;
+
+    const product = await strapi
+      .plugin("strapi-stripe")
+      .service("stripeService")
+      .createProduct(result.name, result.price, result.description);
+
+    await strapi.query("api::[name].[name]").update({
+      where: { id: result.id },
+      data: {
+        stripeProductId: product.id,
+      },
+    });
+  },
+  async afterUpdate(event) {
+    const { result, params } = event;
+
+    const productsResponse = await fetch(
+      "http://127.0.0.1:1337/strapi-stripe/getProduct/0/5/name/asc?sort=title:asc",
+      {
+        headers: {
+          Authorization: "Bearer " + process.env.STRAPI_ADMIN_API_TOKEN,
+        },
+      }
+    );
+    const products = await productsResponse.json();
+
+    const product = products.res.find(
+      (product) => product.stripeProductId == result.stripeProductId
+    );
+
+    if (result.price !== product.price) {
+      await strapi
+        .plugin("strapi-stripe")
+        .service("stripeService")
+        .deleteProduct(product.id);
+
+      const newProduct = await strapi
+        .plugin("strapi-stripe")
+        .service("stripeService")
+        .createProduct(result.name, result.price, result.description);
+
+      await strapi.query("api::cours.cours").update({
+        where: { id: result.id },
+        data: {
+          stripeProductId: newProduct.id,
+        },
+      });
+    } else {
+      await strapi
+        .plugin("strapi-stripe")
+        .service("stripeService")
+        .updateProduct(
+          product.id,
+          product.stripeProductId,
+          result.name,
+          result.description
+        );
+    }
+  },
+  async afterDelete(event) {
+    const { result, params } = event;
+
+    const productsResponse = await fetch(
+      "http://127.0.0.1:1337/strapi-stripe/getProduct/0/5/name/asc?sort=title:asc",
+      {
+        headers: {
+          Authorization: "Bearer " + process.env.STRAPI_ADMIN_API_TOKEN,
+        },
+      }
+    );
+    const products = await productsResponse.json();
+
+    const product = products.res.find(
+      (product) => product.stripeProductId == result.stripeProductId
+    );
+
+    await strapi
+      .plugin("strapi-stripe")
+      .service("stripeService")
+      .deleteProduct(product.id);
+  },
+};
+```
+
+Don't forget :
+- to define the read-only API key to .env (named `STRAPI_ADMIN_API_TOKEN`).
+- to create a content-type and to replace `name` in `api::[name].[name]` by the real name of your content type.
+- to create fields in this content type named `price` (`integer` or `decimal`), `description` (`richtext`), `stripeProductId` (`string`) and `name` (`string`).
+
 ## Accept Online Payments
 
 After you embedding the Payment Button on your product list page, you are ready to accept online payments.

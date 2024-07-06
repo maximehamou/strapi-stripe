@@ -26,9 +26,9 @@ module.exports = ({ strapi }) => ({
   async createProduct(
     title,
     productPrice,
+    description,
     imageId,
     imageUrl,
-    description,
     isSubscription,
     paymentInterval,
     trialPeriodDays
@@ -92,7 +92,7 @@ module.exports = ({ strapi }) => ({
       throw new ApplicationError(error.message);
     }
   },
-  async updateProduct(id, title, url, description, productImage, stripeProductId) {
+  async updateProduct(id, stripeProductId, title, description, url, productImage) {
     try {
       const stripeSettings = await this.initialize();
       let stripe;

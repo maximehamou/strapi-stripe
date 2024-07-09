@@ -12,7 +12,9 @@ window.onload = () => {
         SS_ProductCheckout(
           event.target.dataset.id,
           event.target.dataset.url,
-          event.target.dataset.email
+          event.target.dataset.email,
+          event.target.dataset.begins_from,
+          event.target.dataset.ends_to
         );
       });
     });
@@ -27,9 +29,18 @@ window.onload = () => {
 
 // product Checkout logic
 
-function SS_ProductCheckout(productId, baseUrl, userEmail) {
+function SS_ProductCheckout(productId, baseUrl, userEmail, begins_from, ends_to) {
   localStorage.setItem('strapiStripeUrl', baseUrl);
-  const getRedirectUrl = baseUrl + '/strapi-stripe/getRedirectUrl/' + productId + '/' + userEmail;
+  const getRedirectUrl =
+    baseUrl +
+    '/strapi-stripe/getRedirectUrl/' +
+    productId +
+    '/' +
+    userEmail +
+    '/' +
+    begins_from +
+    '/' +
+    ends_to;
 
   fetch(getRedirectUrl, {
     method: 'get',

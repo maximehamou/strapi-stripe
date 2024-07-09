@@ -93,7 +93,7 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: '/getRedirectUrl/:id/:email',
+    path: '/getRedirectUrl/:id/:email/:begins_from/:ends_to',
     handler: 'stripeController.getRedirectUrl',
     config: {
       auth: false,

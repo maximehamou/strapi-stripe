@@ -273,9 +273,71 @@ module.exports = {
 ```
 
 Don't forget :
-- to define the read-only API key to .env (named `STRAPI_ADMIN_API_TOKEN`).
+- to define the custom API key to .env (named `STRAPI_ADMIN_API_TOKEN`, including all read-only rights + the API controller defined below).
 - to create a content-type and to replace `name` in `api::[name].[name]` by the real name of your content type.
 - to create fields in this content type named `price` (`integer` or `decimal`), `description` (`richtext`), `stripeProductId` (`string`) and `name` (`string`).
+
+## Add a middleware to create bookings securely (optional)
+
+Run `strapi generate` to create an API, named for exemple `catch-front-requests`.
+Then, add an endpoint in `./src/api/catch-front-requests/routes/catch-front-requests.js` file :
+
+```
+module.exports = {
+  routes: [
+    {
+      method: "POST",
+      path: "/catch-front-requests",
+      handler: "catch-front-requests.generateReservation",
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
+  ],
+};
+```
+
+Add a controller in `./src/api/catch-front-requests/controllers/catch-front-requests.js` :
+
+```
+module.exports = {
+  generateReservation: async (ctx, next) => {
+    try {
+      ctx.body = "POST request sent!";
+
+      const checkoutRes = ctx.request.body;
+
+      const lessonId = (
+        await strapi.query("api::cours.cours").findOne({
+          where: { name: checkoutRes.metadata.productName },
+        })
+      ).id;
+
+      if (checkoutRes.payment_status === "paid") {
+        strapi.query("api::reservations.reservations").create({
+          data: {
+            firstname: checkoutRes.customer_details.name.split(" ")[0],
+            lastname: checkoutRes.customer_details.name.split(" ")[1],
+            email: checkoutRes.customer_details.email,
+            cours: lessonId,
+            begins_from: checkoutRes.metadata.begins_from,
+            ends_to: checkoutRes.metadata.ends_to,
+          },
+        });
+      }
+    } catch (err) {
+      ctx.body = err;
+    }
+  },
+};
+```
+
+Don't forget :
+- To create a content-type named `reservations`, with `firstname`, `lastname`, `email`, `cours` (relation field), `begins_from` (datetime) and `ends_to` (datetime) fields.
+- To add the webhook url in strapi-stripe settings (`http://127.0.0.1:1337/api/catch-front-requests` for exemple)
+
+
 
 ## Accept Online Payments
 

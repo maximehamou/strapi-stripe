@@ -137,7 +137,9 @@ module.exports = ({ strapi }) => ({
     isSubscription,
     productId,
     productName,
-    userEmail
+    userEmail,
+    begins_from,
+    ends_to
   ) {
     try {
       const stripeSettings = await this.initialize();
@@ -182,6 +184,8 @@ module.exports = ({ strapi }) => ({
         metadata: {
           productId: `${productId}`,
           productName: `${productName}`,
+          begins_from: `${begins_from}`,
+          ends_to: `${ends_to}`,
         },
       });
       return session;
@@ -211,7 +215,11 @@ module.exports = ({ strapi }) => ({
       // Return if no callbackUrl is set
       if (!stripeSettings.callbackUrl) return;
 
-      await axiosInstance.post(stripeSettings.callbackUrl, session);
+      await axiosInstance.post(stripeSettings.callbackUrl, session, {
+        headers: {
+          Authorization: 'Bearer ' + process.env.STRAPI_ADMIN_API_TOKEN,
+        },
+      });
     } catch (error) {
       throw new ApplicationError(error.message);
     }

@@ -34,8 +34,8 @@ module.exports = async (policyContext, config, { strapi }) => {
     return true;
   }
 
-  if (storedToken.type === 'read-only' && policyContext.request.url.includes("getProduct")) {
-    console.log('Token has read-only access (ok for getProduct)');
+  if (storedToken.type === 'custom' && (policyContext.request.url.includes("getProduct") || policyContext.request.url.includes("retrieveCheckoutSession"))) {
+    console.log('Token has a custom access (ok for getProduct)');
     return true;
   }
 

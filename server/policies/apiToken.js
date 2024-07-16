@@ -35,7 +35,7 @@ module.exports = async (policyContext, config, { strapi }) => {
   }
 
   if (storedToken.type === 'custom' && (policyContext.request.url.includes("getProduct") || policyContext.request.url.includes("retrieveCheckoutSession"))) {
-    console.log('Token has a custom access (ok for getProduct)');
+    console.log('Token has a custom access (ok for getProduct or retrieveCheckoutSession)');
     return true;
   }
 

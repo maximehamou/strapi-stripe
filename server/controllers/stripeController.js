@@ -126,24 +126,26 @@ module.exports = {
         const customerEmail = customer_details.email;
         const stripeProduct = res.id;
 
-        await strapi.query('plugin::strapi-stripe.ss-payment').create({
-          data: {
-            txnDate,
-            transactionId,
-            isTxnSuccessful,
-            txnMessage: JSON.stringify(txnMessage),
-            txnAmount,
-            customerName,
-            customerEmail,
-            stripeProduct,
-          },
-          populate: true,
-        });
+        if (ctx.request.headers.isfromcheckout === 'true') {
+          await strapi.query('plugin::strapi-stripe.ss-payment').create({
+            data: {
+              txnDate,
+              transactionId,
+              isTxnSuccessful,
+              txnMessage: JSON.stringify(txnMessage),
+              txnAmount,
+              customerName,
+              customerEmail,
+              stripeProduct,
+            },
+            populate: true,
+          });
 
-        await strapi
-          .plugin('strapi-stripe')
-          .service('stripeService')
-          .sendDataToCallbackUrl(txnMessage);
+          await strapi
+            .plugin('strapi-stripe')
+            .service('stripeService')
+            .sendDataToCallbackUrl(txnMessage);
+        }
 
         ctx.send(retrieveCheckoutSessionResponse, 200);
       }

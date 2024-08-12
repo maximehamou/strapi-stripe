@@ -182,6 +182,7 @@ module.exports = ({ strapi }) => ({
         allow_promotion_codes: stripeSettings.allowPromotionCode,
         success_url: `${stripeSettings.checkoutSuccessUrl}?sessionId={CHECKOUT_SESSION_ID}`,
         cancel_url: `${stripeSettings.checkoutCancelUrl}`,
+        expires_at: Math.floor(Date.now() / 1000) + 3600 / 2,
         metadata: {
           productId: `${productId}`,
           productName: `${productName}`,

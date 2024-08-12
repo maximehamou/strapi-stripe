@@ -194,7 +194,7 @@ module.exports = {
 
   async getRedirectUrl(ctx) {
     try {
-      const { id, email, begins_from, ends_to, location } = ctx.params;
+      const { id, email, begins_from, ends_to, location, authenticated } = ctx.params;
       const res = await strapi
         .query('plugin::strapi-stripe.ss-product')
         .findOne({ where: { id }, populate: true });
@@ -212,7 +212,8 @@ module.exports = {
             email,
             begins_from,
             ends_to,
-            location
+            location,
+            authenticated
           );
 
         ctx.send({ url: checkoutSessionResponse.url }, 200);

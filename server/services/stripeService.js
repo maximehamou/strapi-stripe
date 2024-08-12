@@ -140,7 +140,8 @@ module.exports = ({ strapi }) => ({
     userEmail,
     begins_from,
     ends_to,
-    location
+    location,
+    authenticated
   ) {
     try {
       const stripeSettings = await this.initialize();
@@ -189,6 +190,7 @@ module.exports = ({ strapi }) => ({
           begins_from: `${begins_from}`,
           ends_to: `${ends_to}`,
           location: `${location}`,
+          authenticated: `${authenticated}`,
         },
       });
       return session;

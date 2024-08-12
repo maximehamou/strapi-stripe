@@ -15,7 +15,8 @@ window.onload = () => {
           event.target.dataset.email,
           event.target.dataset.begins_from,
           event.target.dataset.ends_to,
-          event.target.dataset.location
+          event.target.dataset.location,
+          event.target.dataset.authenticated
         );
       });
     });
@@ -30,7 +31,15 @@ window.onload = () => {
 
 // product Checkout logic
 
-function SS_ProductCheckout(productId, baseUrl, userEmail, begins_from, ends_to, location) {
+function SS_ProductCheckout(
+  productId,
+  baseUrl,
+  userEmail,
+  begins_from,
+  ends_to,
+  location,
+  authenticated
+) {
   localStorage.setItem('strapiStripeUrl', baseUrl);
   const getRedirectUrl =
     baseUrl +
@@ -43,7 +52,9 @@ function SS_ProductCheckout(productId, baseUrl, userEmail, begins_from, ends_to,
     '/' +
     ends_to +
     '/' +
-    location;
+    location +
+    '/' +
+    authenticated;
 
   fetch(getRedirectUrl, {
     method: 'get',
@@ -79,7 +90,7 @@ function SS_GetProductPaymentDetails(checkoutSessionId) {
       mode: 'cors',
       headers: new Headers({
         'Content-Type': 'application/json',
-        isFromCheckout: 'true',
+        isfromcheckout: 'true',
       }),
     });
   }

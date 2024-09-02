@@ -77,14 +77,17 @@ function SS_GetProductPaymentDetails(checkoutSessionId) {
   const baseUrl = localStorage.getItem('strapiStripeUrl');
   const retrieveCheckoutSessionUrl =
     baseUrl + '/strapi-stripe/retrieveCheckoutSession/' + checkoutSessionId;
+
   if (
     window.performance
       .getEntriesByType('navigation')
       .map(nav => nav.type)
-      .includes('reload')
+      .includes('reload') || localStorage.getItem("visited") === document.location.search
   ) {
     console.info('website reloded');
   } else {
+    localStorage.setItem("visited", document.location.search)
+
     fetch(retrieveCheckoutSessionUrl, {
       method: 'get',
       mode: 'cors',
